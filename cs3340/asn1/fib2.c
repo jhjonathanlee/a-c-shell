@@ -2,8 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-int fib(int n);
-
 typedef struct {
   int *num;
   int digits;
