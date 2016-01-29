@@ -158,15 +158,20 @@ int main() {
   freeBigInt(test3);
 
   printf("let's do fibonacci\n");
- /* 
-  for (int i = 20; i <= 30; i+=5) {
+  
+  for (int i = 2; i <= 3; i++) {
     BigInteger *fibInt = fib2(i);
+    printf("Fib(%d)", i);
     printBigInt(fibInt);
   }
-*/
-  BigInteger *fibInt = fib2(2);
-  printBigInt(fibInt);
 
+  //BigInteger *fibInt = fib2(2);
+  //printBigInt(fibInt);
+ /* 
+  for (int x = 0; x < 15; x++) {
+    printf("%d: %d\n", x, store->ref[x]);
+  }
+*/
   int i = 0;
   while (store->ref[i] > 0) {
     freeBigInt(store->val[i]);
@@ -177,23 +182,24 @@ int main() {
 }
 
 BigInteger *fib2(int n) {
-  if (n == 0) {
-    store->val[0] = createBigInt("0");
-    store->ref[0] = 1;
-    return store->val[0];
-  }
-  if (n == 1) {
-    store->val[1] = createBigInt("1");
-    store->ref[1] = 1;
-    return store->val[1];
-  }
-  BigInteger *retval;
-
   if (store->ref[n] == 0) {
+    if (n == 0) {
+      store->val[0] = createBigInt("0");
+      store->ref[0] = 1;
+      return store->val[0];
+    }
+    if (n == 1) {
+      store->val[1] = createBigInt("1");
+      store->ref[1] = 1;
+      return store->val[1];
+    }
+    BigInteger *retval;
+
     BigInteger *bigInt1 = fib2(n - 1);
     BigInteger *bigInt2 = fib2(n - 2);
     retval = add(bigInt1, bigInt2);
     store->val[n] = retval;
+    store->ref[n] = 1;
   }
   return store->val[n];
 }
