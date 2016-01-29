@@ -23,7 +23,6 @@ void printBigInt(BigInteger *bigInt);
 
 void expand(int **a, int size) {
   *a = realloc(*a, sizeof(*a)*size*2);
-//  printf("%d\n", (*a)[1]);
   memset(&((*a)[size]), 0, sizeof(*a)*size);
 }
 
@@ -33,9 +32,6 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
   BigInteger *smallerInt = (a->digits >= b->digits) ? b : a;
   retval->size = biggerInt->size;
   
-  //printf("Adding...\n");
-  //printBigInt(biggerInt);
-  //printBigInt(smallerInt);
   int *arr = malloc(sizeof(int)*biggerInt->size);
   memset(arr, 0, sizeof(*arr)*biggerInt->size);
   int n1, n2, i;
@@ -55,9 +51,7 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
 
   if (n2 > 0) {
     if (i >= biggerInt->size) {
-   //   printf("expanding...\n");
       expand(&arr, biggerInt->size);
-     // printf("done expanding...\n");
       retval->size = biggerInt->size*2;
     }
     do {
@@ -82,13 +76,10 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
 }
 
 void printBigInt(BigInteger *bigInt) {
-  char *str = malloc(bigInt->digits);
-
-  for (int i = bigInt->size - 1; i >= 0; i--) {
+  for (int i = bigInt->digits - 1; i >= 0; i--) {
     printf("%d", bigInt->num[i]);
   }
   printf("\n");
-  free(str);
 }
 
 BigInteger *createBigInt(char *s) {
@@ -103,7 +94,6 @@ BigInteger *createBigInt(char *s) {
 
   for (int i = digits - 1; i >= 0; i--) {
     bigInt->num[i] = s[digits - i - 1] - 48;
-    //printf("atoi : %d\n", atoi(&s[digits - i - 1]));
   }
 
   return bigInt;
@@ -119,59 +109,10 @@ int main() {
   memset(store->val, 0, sizeof(store->val));
   memset(store->ref, 0, sizeof(store->ref));
 
-  BigInteger *bigInt = createBigInt("89");
-  printBigInt(bigInt);
-
-  BigInteger *bigInt2 = createBigInt("55");
-  printBigInt(bigInt2);
-
-  BigInteger *added = add(bigInt, bigInt2);
-  //printf("added : %d\n", added->num[2]);
-  printBigInt(added);
-
-  freeBigInt(bigInt);
-  freeBigInt(bigInt2);
-  freeBigInt(added);
-
-  BigInteger *test1 = malloc(sizeof(BigInteger));
-  BigInteger *test2 = malloc(sizeof(BigInteger));
-
-  test1->digits = 2;
-  test1->size = 2;
-  test2->digits = 2;
-  test2->size=2;
-
-  test1->num = malloc(sizeof(int)*2);
-  test2->num = malloc(sizeof(int)*2);
-
-  test1->num[0] = 9; test1->num[1] = 8;
-  test2->num[0] = 5; test2->num[1] = 5;
-
-  BigInteger *test3 = add(test1, test2);
-
-  printBigInt(test1);
-  printBigInt(test2);
-  printBigInt(test3);
-
-  freeBigInt(test1);
-  freeBigInt(test2);
-  freeBigInt(test3);
-
-  printf("let's do fibonacci\n");
-  for (int i = 100; i <= 300; i+=100) {
-    BigInteger *fibInt = fib2(i);
-    printf("Fib(%d)", i);
-    printBigInt(fibInt);
-  }
-  /*
-  BigInteger *fibInt = fib2(35);
+  BigInteger *fibInt = fib2(300);
+  printf("Fib(30): ");
   printBigInt(fibInt);
-  */
- /* 
-  for (int x = 0; x < 15; x++) {
-    printf("%d: %d\n", x, store->ref[x]);
-  }
-*/
+
   int i = 0;
   while (i < 301 && store->ref[i] > 0) {
     freeBigInt(store->val[i]);
@@ -202,15 +143,4 @@ BigInteger *fib2(int n) {
     store->ref[n] = 1;
   }
   return store->val[n];
-}
-
-int fib(int n) {
-  int retval = 0;
-  if (n == 0) {
-    return 0;
-  }
-  if (n == 1) {
-    return 1;
-  }
-  return fib(n - 1) + fib(n - 2);
 }
