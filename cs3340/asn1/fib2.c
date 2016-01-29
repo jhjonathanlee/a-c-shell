@@ -10,6 +10,10 @@ typedef struct {
   int size;
 } BigInteger;
 
+typedef struct {
+  BigInteger[300] val;
+} fibonacci;
+
 BigInteger *fib2(int n);
 BigInteger *createBigInt(char *s);
 void printBigInt(BigInteger *bigInt);
@@ -53,7 +57,8 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
       retval->size = biggerInt->size*2;
     }
     do {
-      arr[i] = biggerInt->num[i] + n2;
+      n1 = i < biggerInt->digits ? biggerInt->num[i] : 0;
+      arr[i] = n1 + n2;
       if (arr[i] > 10) {
         arr[i] -= 10;
         n2 = 1;
@@ -119,19 +124,42 @@ int main() {
   freeBigInt(bigInt2);
   freeBigInt(added);
 
+  BigInteger *test1 = malloc(sizeof(BigInteger));
+  BigInteger *test2 = malloc(sizeof(BigInteger));
+
+  test1->digits = 2;
+  test1->size = 2;
+  test2->digits = 2;
+  test2->size=2;
+
+  test1->num = malloc(sizeof(int)*2);
+  test2->num = malloc(sizeof(int)*2);
+
+  test1->num[0] = 9; test1->num[1] = 8;
+  test2->num[0] = 5; test2->num[1] = 5;
+
+  BigInteger *test3 = add(test1, test2);
+
+  printBigInt(test1);
+  printBigInt(test2);
+  printBigInt(test3);
+
+  freeBigInt(test1);
+  freeBigInt(test2);
+  freeBigInt(test3);
+
   printf("let's do fibonacci\n");
   
-  for (int i = 10; i < 20; i++) {
+  for (int i = 0; i < 1; i++) {
     BigInteger *fibInt = fib2(i);
     printBigInt(fibInt);
     freeBigInt(fibInt);
   }
 
-/*
-  BigInteger *fibInt = fib2(20);
+  BigInteger *fibInt = fib2(300);
   printBigInt(fibInt);
   freeBigInt(fibInt);
-*/
+
   return 0;
 }
 
