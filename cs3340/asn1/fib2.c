@@ -14,9 +14,10 @@ BigInteger *fib2(int n);
 BigInteger *createBigInt(char *s);
 void printBigInt(BigInteger *bigInt);
 
-void expand(int *a, int size) {
-  a = realloc((void *)a, sizeof(int)*size*2);
-  memset(&a[size], 0, sizeof(int)*size);
+void expand(int **a, int size) {
+  *a = realloc(*a, sizeof(*a)*size*2);
+//  printf("%d\n", (*a)[1]);
+  memset(&((*a)[size]), 0, sizeof(*a)*size);
 }
 
 BigInteger *add(BigInteger *a, BigInteger *b) {
@@ -28,7 +29,7 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
   //printf("Adding...\n");
   //printBigInt(biggerInt);
   //printBigInt(smallerInt);
-  int *arr = (int *) malloc(sizeof(int)*biggerInt->size);
+  int *arr = malloc(sizeof(int)*biggerInt->size);
   int n1, n2, i;
   n1 = 0;
   n2 = 0;
@@ -46,8 +47,9 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
 
   if (n2 > 0) {
     if (i >= biggerInt->size) {
-      printf("expanding...\n");
-      expand(arr, biggerInt->size);
+   //   printf("expanding...\n");
+      expand(&arr, biggerInt->size);
+     // printf("done expanding...\n");
       retval->size = biggerInt->size*2;
     }
     do {
@@ -61,7 +63,6 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
       i++;
     } while (n2 > 0);
   }
-
   while (i < biggerInt->digits) {
     arr[i] = biggerInt->num[i];
     i++;
@@ -86,8 +87,8 @@ BigInteger *createBigInt(char *s) {
   int size = digits * 2;
   
   BigInteger *bigInt = (BigInteger *) malloc(sizeof(BigInteger));
-  bigInt->num = (int *) malloc(sizeof(int)*size);
-  memset((void *)bigInt->num, 0, sizeof(int)*size); 
+  bigInt->num = malloc(sizeof(int)*size);
+  memset(bigInt->num, 0, sizeof(int)*size); 
   bigInt->digits = digits;
   bigInt->size = size;
 
@@ -105,10 +106,10 @@ void freeBigInt(BigInteger *bigInt) {
 }
 
 int main() {
-  BigInteger *bigInt = createBigInt("0");
+  BigInteger *bigInt = createBigInt("89");
   printBigInt(bigInt);
 
-  BigInteger *bigInt2 = createBigInt("1");
+  BigInteger *bigInt2 = createBigInt("55");
   printBigInt(bigInt2);
 
   BigInteger *added = add(bigInt, bigInt2);
@@ -119,18 +120,18 @@ int main() {
   freeBigInt(added);
 
   printf("let's do fibonacci\n");
-  for (int i = 0; i <= 10; i++) {
-    char *c;
-    snprintf(c, 
-    BigInteger *fibInt = fib2(atoi(c));
+  
+  for (int i = 10; i < 20; i++) {
+    BigInteger *fibInt = fib2(i);
     printBigInt(fibInt);
     freeBigInt(fibInt);
   }
 
-  BigInteger *fibInt = fib2(10);
+/*
+  BigInteger *fibInt = fib2(20);
   printBigInt(fibInt);
   freeBigInt(fibInt);
-
+*/
   return 0;
 }
 
