@@ -108,7 +108,7 @@ int main() {
   memset(store->ref, 0, sizeof(store->ref));
 
   BigInteger *fibInt = fib2(300);
-  printf("Fib(30): ");
+  printf("Fib(300): ");
   printBigInt(fibInt);
 
   int i = 0;
