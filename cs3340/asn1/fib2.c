@@ -158,22 +158,22 @@ int main() {
   freeBigInt(test3);
 
   printf("let's do fibonacci\n");
-  
-  for (int i = 2; i <= 3; i++) {
+  for (int i = 100; i <= 300; i+=100) {
     BigInteger *fibInt = fib2(i);
     printf("Fib(%d)", i);
     printBigInt(fibInt);
   }
-
-  //BigInteger *fibInt = fib2(2);
-  //printBigInt(fibInt);
+  /*
+  BigInteger *fibInt = fib2(35);
+  printBigInt(fibInt);
+  */
  /* 
   for (int x = 0; x < 15; x++) {
     printf("%d: %d\n", x, store->ref[x]);
   }
 */
   int i = 0;
-  while (store->ref[i] > 0) {
+  while (i < 301 && store->ref[i] > 0) {
     freeBigInt(store->val[i]);
     i++;
   }
