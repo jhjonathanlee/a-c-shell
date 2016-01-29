@@ -11,8 +11,11 @@ typedef struct {
 } BigInteger;
 
 typedef struct {
-  BigInteger[300] val;
+  BigInteger *val[301];
+  int ref[301];
 } fibonacci;
+
+fibonacci *store;
 
 BigInteger *fib2(int n);
 BigInteger *createBigInt(char *s);
@@ -34,6 +37,7 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
   //printBigInt(biggerInt);
   //printBigInt(smallerInt);
   int *arr = malloc(sizeof(int)*biggerInt->size);
+  memset(arr, 0, sizeof(*arr)*biggerInt->size);
   int n1, n2, i;
   n1 = 0;
   n2 = 0;
@@ -111,6 +115,10 @@ void freeBigInt(BigInteger *bigInt) {
 }
 
 int main() {
+  store = malloc(sizeof(fibonacci));
+  memset(store->val, 0, sizeof(store->val));
+  memset(store->ref, 0, sizeof(store->ref));
+
   BigInteger *bigInt = createBigInt("89");
   printBigInt(bigInt);
 
@@ -118,6 +126,7 @@ int main() {
   printBigInt(bigInt2);
 
   BigInteger *added = add(bigInt, bigInt2);
+  //printf("added : %d\n", added->num[2]);
   printBigInt(added);
 
   freeBigInt(bigInt);
@@ -149,37 +158,44 @@ int main() {
   freeBigInt(test3);
 
   printf("let's do fibonacci\n");
-  
-  for (int i = 0; i < 1; i++) {
+ /* 
+  for (int i = 20; i <= 30; i+=5) {
     BigInteger *fibInt = fib2(i);
     printBigInt(fibInt);
-    freeBigInt(fibInt);
   }
-
-  BigInteger *fibInt = fib2(300);
+*/
+  BigInteger *fibInt = fib2(2);
   printBigInt(fibInt);
-  freeBigInt(fibInt);
 
+  int i = 0;
+  while (store->ref[i] > 0) {
+    freeBigInt(store->val[i]);
+    i++;
+  }
+  free(store);
   return 0;
 }
 
 BigInteger *fib2(int n) {
   if (n == 0) {
-    return createBigInt("0");
+    store->val[0] = createBigInt("0");
+    store->ref[0] = 1;
+    return store->val[0];
   }
   if (n == 1) {
-    return createBigInt("1");
+    store->val[1] = createBigInt("1");
+    store->ref[1] = 1;
+    return store->val[1];
   }
-  
-  BigInteger *bigInt1 = fib2(n - 1);
-  BigInteger *bigInt2 = fib2(n - 2);
+  BigInteger *retval;
 
-  BigInteger *retval = add(bigInt1, bigInt2);
-
-  freeBigInt(bigInt1);
-  freeBigInt(bigInt2);
-
-  return retval;
+  if (store->ref[n] == 0) {
+    BigInteger *bigInt1 = fib2(n - 1);
+    BigInteger *bigInt2 = fib2(n - 2);
+    retval = add(bigInt1, bigInt2);
+    store->val[n] = retval;
+  }
+  return store->val[n];
 }
 
 int fib(int n) {
