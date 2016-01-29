@@ -107,9 +107,11 @@ int main() {
   memset(store->val, 0, sizeof(store->val));
   memset(store->ref, 0, sizeof(store->ref));
 
-  BigInteger *fibInt = fib2(300);
-  printf("Fib(300): ");
-  printBigInt(fibInt);
+  for (int i = 0; i <= 30; i++) {
+    printf("Fib(%d) : ", i*10);
+    BigInteger *fibInt = fib2(i*10);
+    printBigInt(fibInt);
+  }
 
   int i = 0;
   while (i < 301 && store->ref[i] > 0) {
