@@ -6,35 +6,40 @@ int fib(int n);
 typedef struct {
   int *num;
   int digits;
+  int size;
 } BigInteger;
 
-BigInteger *expand(BigInteger *a) {
+void expand(int *a, int size) {
+  int arr = a;
+  realloc(arr, sizeof(int)*size*2);
 }
 
 BigInteger *add(BigInteger *a, BigInteger *b) {
-  int flag = 1;
-  int i, n1, n2;
+  BigInteger *retval = (BigInteger *) malloc(sizeof(BigInteger));
 
-  i = 0;
+  BigInteger *biggerInt = (a->digits >= b->digits) ? a : b;
+  BigInteger *smallerInt = (a->digits > b->digits) ? b : a;
+  
+  int *arr = (int *) malloc(sizeof(int)*biggerInt->size);
+  
+  int n1, n2, i;
+  n1 = 0;
   n2 = 0;
 
-  BigInteger *c = (BigInteger *) malloc(sizeof(BigInteger));
-  c->digits = a->digts > b->digits ? a->digits : b->digits;
-  c->num = (int *) malloc(sizeof(int) * c->digits);
-
-  while (flag) {
-    if (i < a->digits && i < b->digits) {
-      n1 = a->num[i] + b->num[i] + n2;
-      if (n1 >= 10) {
-        n2 = 1;
-        n1 -= 10;
-      } else {
-        n2 = 0;
-      }
-      c->num[i] = n1;
-      i++;
+  // add smaller int to bigger int
+  for (i = 0; i < smallerInt->digits; i++) {
+    n1 = biggerInt->num[i] + smallerInt->num[i] + n2;
+    n2 = 0;
+    if (n1 >= 10) {
+      n2 = 1;
     }
+    arr[i] = n1;
   }
+
+  if (n2 > 0) {
+    if (i <= biggerInt->size)
+      expand(arr, biggerInt->size);
+      retval->size = biggerInt->size*2;
 
 }
 
@@ -43,6 +48,7 @@ int main() {
   bigInt->digits = 1;
   bigInt->num = (int *) malloc(sizeof(int));
   *bigInt->num = 0;
+  bigInt->size = 10;
 
   printf("%d\n", *bigInt->num);
 
