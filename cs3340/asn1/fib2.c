@@ -9,19 +9,21 @@ typedef struct {
   int size;
 } BigInteger;
 
+BigInteger *fib2(int n);
+
 void expand(int *a, int size) {
-  int arr = a;
-  realloc(arr, sizeof(int)*size*2);
+  a = realloc((void *)a, sizeof(int)*size*2);
 }
 
 BigInteger *add(BigInteger *a, BigInteger *b) {
   BigInteger *retval = (BigInteger *) malloc(sizeof(BigInteger));
   BigInteger *biggerInt = (a->digits >= b->digits) ? a : b;
-  BigInteger *smallerInt = (a->digits > b->digits) ? b : a;
+  BigInteger *smallerInt = (a->digits > b->digits) ? a : b;
   retval->size = biggerInt->size;
   
+//  printf("Adding %d + %d\n", a->num[0], b->num[0]);
+
   int *arr = (int *) malloc(sizeof(int)*biggerInt->size);
-  
   int n1, n2, i;
   n1 = 0;
   n2 = 0;
@@ -32,6 +34,7 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
     n2 = 0;
     if (n1 >= 10) {
       n2 = 1;
+      n1 -= 10;
     }
     arr[i] = n1;
   }
@@ -54,7 +57,7 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
   }
 
   while (i < biggerInt->digits) {
-    arr[i] = biggerInt->nums[i];
+    arr[i] = biggerInt->num[i];
     i++;
   }
   retval->num = arr;
@@ -64,7 +67,7 @@ BigInteger *add(BigInteger *a, BigInteger *b) {
 
 int main() {
   BigInteger *bigInt =(BigInteger *) malloc(sizeof(BigInteger));
-  BigInteger *bitInt2 = (BigInteger *) malloc(sizeof(BigInteger));
+  BigInteger *bigInt2 = (BigInteger *) malloc(sizeof(BigInteger));
   
   bigInt->digits = 1;
   bigInt->num = (int *) malloc(sizeof(int));
@@ -73,17 +76,49 @@ int main() {
 
   bigInt2->digits = 1;
   bigInt2->num = (int *) malloc(sizeof(int));
-  *big2->num = 8;
-  bigInt->1;
+  *bigInt2->num = 9;
+  bigInt2->size = 1;
 
-  BigInteger* added = add(bigInt2, bigInt2);
+  printf("fib(0)\n");
+  BigInteger* added = fib2(0);
+  printf("fib(1)\n");
+  BigInteger* added2 = fib2(1);
+  printf("fib(7)\n");
+  BigInteger* added3 = fib2(13);
 
-  printf("%d\n", *added->num);
+  printf("digits: %d\n", added3->digits);
+  for (int i = added3->digits-1; i >=0; i--) {
+    printf("%d", added3->num[i]);
+  }
+
+  printf("\n");
 
   free(bigInt->num);
   free(bigInt);
 
   return 0;
+}
+
+BigInteger *fib2(int n) {
+  if (n == 1 || n == 0) {
+    BigInteger *bigInt = (BigInteger *) malloc(sizeof(BigInteger));
+    bigInt->size = 10;
+    bigInt->digits = 1;
+    bigInt->num = malloc(sizeof(int)*10);
+    bigInt->num[0] = n;
+    return bigInt;
+  }
+  BigInteger *bigInt1 = fib2(n - 1);
+  BigInteger *bigInt2 = fib2(n - 2);
+
+  BigInteger *retval = add(bigInt1, bigInt2);
+
+  free(bigInt1->num);
+  free(bigInt2->num);
+  free(bigInt1);
+  free(bigInt2);
+
+  return retval;
 }
 
 int fib(int n) {
