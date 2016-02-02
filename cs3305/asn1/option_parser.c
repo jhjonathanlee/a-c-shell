@@ -11,18 +11,16 @@ csh_cmd *get_options(char *s) {
   int i = 0;
   const char delim[2] = " ";
 
-  token = strtok(s, delim);
+  token = strtok(s, " \n");
   asprintf(&(cmd->cmd), "%s", token);
-  asprintf(&(buf[i]), "%s", token);
-  i++;
 
   while (token != NULL) {
-    token = strtok(NULL, s);
     asprintf(&(buf[i]), "%s", token);
+    token = strtok(NULL, " \n");
     i++;
   }
 
-  cmd->num = i + 1;
+  cmd->num = i;
   cmd->options = buf;
 
   return cmd;

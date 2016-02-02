@@ -1,10 +1,10 @@
 CC = gcc
-CFLAGS = -O0 -Wall -Werror
+CFLAGS = -O0 -std=gnu11
 
-all: csh.c
-	$(CC) $(CFLAGS) -o csh csh.c
+all: csh.c option_parser.o
+	$(CC) $(CFLAGS) -D_GNU_SOURCE -o csh csh.c option_parser.o
 
-option_parser: option_parser.c option_parser.h
+option_parser.o: option_parser.c option_parser.h
 	$(CC) $(CFLAGS) -D_GNU_SOURCE -c option_parser.c
 
 clean:

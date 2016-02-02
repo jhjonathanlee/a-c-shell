@@ -1,3 +1,6 @@
+#ifndef option_parser_h
+#define option_parser_h
+
 typedef struct {
   char *cmd;
   char **options;
@@ -5,3 +8,5 @@ typedef struct {
 } csh_cmd;
 
 csh_cmd *get_options(char *s);
+
+#endif
