@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include "option_parser.h"
+#include "history.h"
 
 int main() {
   char *uname = getlogin();
@@ -12,6 +13,9 @@ int main() {
   if (uname == NULL) {
     perror(getlogin());
   }
+
+  history *h = malloc(sizeof(h));
+  h->size = 0;
 
   char buf[256];
   char *cmd;
@@ -29,6 +33,8 @@ int main() {
       break;
     }
 
+    add_to_history(h, op);
+
     pid = fork();
 
     if (pid < 0)
@@ -38,7 +44,10 @@ int main() {
       wait(0);
     } else {
 
-      if (strstr(op->cmd, "/") != NULL) {
+      if (strcmp(op->cmd, "history") == 0) {
+        print_history(h);
+      }
+      else if (strstr(op->cmd, "/") != NULL) {
         status = execv(op->cmd, op->options);
       } else {
         status = execvp(op->cmd, op->options);
