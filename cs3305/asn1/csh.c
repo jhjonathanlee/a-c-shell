@@ -1,6 +1,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "option_parser.h"
 
 int main() {
@@ -19,17 +21,20 @@ int main() {
     printf("%s>", uname);
     fgets(buf, 256, stdin);
     asprintf(&cmd, "%s", buf);
-    /*
-     * do work here
-     *
-     */
     
     csh_cmd *op = get_options(cmd);
-    printf("%s> %i\n", uname, op->num);
-    printf("%s> %s\n", uname, op->cmd);
-    for (int i = 0; i < op->num; i++) {
-      printf("%s> %s\n", uname, op->options[i]);
+
+    pid = fork();
+
+    if (pid < 0)
+      perror("fork()");
+    
+    if (pid > 0) {
+      wait(0);
+    } else {
+      execvp(op->cmd, op->options);
     }
+
     free(op->options);
     free(op);
     free(cmd);
