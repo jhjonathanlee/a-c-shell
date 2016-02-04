@@ -25,6 +25,10 @@ int main() {
     
     csh_cmd *op = get_options(cmd);
 
+    if (strcmp(op->cmd, "exit") == 0) {
+      break;
+    }
+
     pid = fork();
 
     if (pid < 0)
@@ -35,9 +39,14 @@ int main() {
     } else {
 
       if (strstr(op->cmd, "/") != NULL) {
-        execv(op->cmd, op->options);
+        status = execv(op->cmd, op->options);
       } else {
-        execvp(op->cmd, op->options);
+        status = execvp(op->cmd, op->options);
+      }
+
+      if (status < 0) {
+        fprintf(stderr, "Could not find '%s'\n", op->cmd);
+        break;
       }
     }
 
