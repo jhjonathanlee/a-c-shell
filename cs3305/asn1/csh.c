@@ -17,12 +17,13 @@ int main() {
   history *h = malloc(sizeof(h));
   h->size = 0;
 
-  char buf[256];
-  char *cmd;
   pid_t pid;
   int status = 0;
+  int break_flag = 0;
   
   while (1) {
+    char buf[256];
+    char *cmd;
     printf("%s>", uname);
     fgets(buf, 256, stdin);
     asprintf(&cmd, "%s", buf);
@@ -30,6 +31,9 @@ int main() {
     csh_cmd *op = get_options(cmd);
 
     if (strcmp(op->cmd, "exit") == 0) {
+      free(op->options);
+      free(op);
+      free(cmd);
       break;
     }
 
@@ -46,24 +50,27 @@ int main() {
 
       if (strcmp(op->cmd, "history") == 0) {
         print_history(h);
-      }
-      else if (strstr(op->cmd, "/") != NULL) {
+      } else if (strstr(op->cmd, "/") != NULL) {
         status = execv(op->cmd, op->options);
       } else {
         status = execvp(op->cmd, op->options);
       }
 
       if (status < 0) {
-        fprintf(stderr, "Could not find '%s'\n", op->cmd);
-        break;
+        fprintf(stderr, "Error executing command: '%s'\n", op->cmd);
       }
+
+      break_flag = 1;
     }
 
     free(op->options);
     free(op);
     free(cmd);
     cmd = NULL;
+    op = NULL;
 
+    if (break_flag)
+      break;
   }
 
   return 0;

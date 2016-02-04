@@ -20,6 +20,8 @@ csh_cmd *get_options(char *s) {
     i++;
   }
 
+  buf[i] = (char *) NULL;
+
   cmd->num = i;
   cmd->options = buf;
 

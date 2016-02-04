@@ -2,3 +2,6 @@
 
 void add_to_history(history *h, csh_cmd *new_item) {
 }
+
+void print_history(history *h) {
+}
