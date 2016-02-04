@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string.h>
 #include "option_parser.h"
 
 int main() {
@@ -32,14 +33,18 @@ int main() {
     if (pid > 0) {
       wait(0);
     } else {
-      execvp(op->cmd, op->options);
+
+      if (strstr(op->cmd, "/") != NULL) {
+        execv(op->cmd, op->options);
+      } else {
+        execvp(op->cmd, op->options);
+      }
     }
 
     free(op->options);
     free(op);
     free(cmd);
     cmd = NULL;
-    break;
 
   }
 
