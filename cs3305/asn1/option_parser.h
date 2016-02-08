@@ -6,9 +6,10 @@
 typedef struct {
   char *options[MAX];
   int num;
+  int pipes;
 } csh_cmd;
 
 csh_cmd *get_options(char *s);
-int make_tokenlist(char *buf, char *tokens[]);
+csh_cmd *make_tokenlist(char *buf);
 
 #endif

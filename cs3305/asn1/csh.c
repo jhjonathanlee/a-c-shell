@@ -11,7 +11,7 @@ int main() {
   char *uname = getlogin();
 
   if (uname == NULL) {
-    perror(getlogin());
+    perror("getlogin()");
   }
 
   history *h = malloc(sizeof(h));
@@ -31,7 +31,6 @@ int main() {
     csh_cmd *op = get_options(cmd);
 
     if (strcmp(op->cmd, "exit") == 0) {
-      free(op->options);
       free(op);
       free(cmd);
       break;
@@ -39,13 +38,14 @@ int main() {
 
     add_to_history(h, op);
 
+    // Return child pid to parent and 0 to child
     pid = fork();
 
     if (pid < 0)
       perror("fork()");
     
     if (pid > 0) {
-      wait(0);
+      wait(pid);
     } else {
 
       if (strcmp(op->cmd, "history") == 0) {
@@ -57,20 +57,13 @@ int main() {
       }
 
       if (status < 0) {
-        fprintf(stderr, "Error executing command: '%s'\n", op->cmd);
+        fprintf(stderr, "Error executing command.\n");
       }
-
-      break_flag = 1;
+      free(op);
+      free(cmd);
+      break;
     }
 
-    free(op->options);
-    free(op);
-    free(cmd);
-    cmd = NULL;
-    op = NULL;
-
-    if (break_flag)
-      break;
   }
 
   return 0;

@@ -4,31 +4,34 @@
 #include <string.h>
 
 csh_cmd *get_options(char *s) {
-  csh_cmd *cmd = malloc(sizeof(csh_cmd));
-  
-  int i = make_tokenlist(s, cmd->options);
-  cmd->num = i;
+  csh_cmd* cmd = make_tokenlist(s);
 
   return cmd;
 }
 
-int make_tokenlist(char *buf, char *tokens[]) {
+csh_cmd *make_tokenlist(char *buf) {
+  csh_cmd *cmd = malloc(sizeof(*cmd));
   char input_line[MAX];
   char *line;
   int i, n;
 
+  cmd->pipes = 0;
   i = 0;
 
   line = buf;
 
-  tokens[i] = strtok(line, " ");
+  cmd->options[i] = strtok(line, " ");
   do {
     i++;
     line = NULL;
-    tokens[i] = strtok(line, " ");
-  } while (tokens[i] != NULL);
+    cmd->options[i] = strtok(line, " ");
+    if (cmd->options[i] != NULL && cmd->options[i][0] == '|')
+      cmd->pipes++;
+  } while (cmd->options[i] != NULL);
 
-  return i;
+  cmd->num = i;
+
+  return cmd;
 }
 // test handle
 void main(void) {
@@ -46,5 +49,6 @@ void main(void) {
   for (i = 0; i < cmd->num; i++) {
     printf("token is %s\n", cmd->options[i]);
   }
+  printf("number of pipes is : %d\n", cmd->pipes);
   free(cmd);
 }
