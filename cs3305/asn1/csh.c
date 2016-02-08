@@ -47,6 +47,18 @@ void main(void) {
     if (pid > 0) {
       waitpid(pid, &status, 0);
     } else {
+      if (cmd->pipes > 0) {
+
+        int fd[pipes][2];
+        int arr[cmd->pipes] = { 0 };
+        for (int i = 0; i < cmd->pipes; i++) {
+          for (int j = 0; j < cmd->num ; j++) {
+            if (cmd->options[j][0] == '|') {
+              arr[i] = j;
+            }
+          }
+        }
+      } else {
 
       if (strcmp(cmd->options[0], "history") == 0) {
         print_history(h);
@@ -55,7 +67,7 @@ void main(void) {
       } else {
         status = execvp(cmd->options[0], cmd->options);
       }
-
+      }
       if (status < 0) {
         fprintf(stderr, "Error executing command.\n");
       }
