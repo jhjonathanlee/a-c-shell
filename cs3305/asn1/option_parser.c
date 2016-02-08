@@ -20,11 +20,11 @@ csh_cmd *make_tokenlist(char *buf) {
 
   line = buf;
 
-  cmd->options[i] = strtok(line, " ");
+  cmd->options[i] = strtok(line, " \n");
   do {
     i++;
     line = NULL;
-    cmd->options[i] = strtok(line, " ");
+    cmd->options[i] = strtok(line, " \n");
     if (cmd->options[i] != NULL && cmd->options[i][0] == '|')
       cmd->pipes++;
   } while (cmd->options[i] != NULL);
@@ -34,6 +34,7 @@ csh_cmd *make_tokenlist(char *buf) {
   return cmd;
 }
 // test handle
+/*
 void main(void) {
   char input_line[MAX];
   csh_cmd *cmd;
@@ -52,3 +53,4 @@ void main(void) {
   printf("number of pipes is : %d\n", cmd->pipes);
   free(cmd);
 }
+*/

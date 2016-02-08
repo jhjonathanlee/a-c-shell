@@ -7,7 +7,7 @@
 #include "option_parser.h"
 #include "history.h"
 
-int main() {
+void main(void) {
   char *uname = getlogin();
 
   if (uname == NULL) {
@@ -23,20 +23,20 @@ int main() {
   
   while (1) {
     char buf[256];
-    char *cmd;
+    char *tokens;
     printf("%s>", uname);
     fgets(buf, 256, stdin);
-    asprintf(&cmd, "%s", buf);
+    asprintf(&tokens, "%s", buf);
     
-    csh_cmd *op = get_options(cmd);
+    csh_cmd *cmd = get_options(tokens);
 
-    if (strcmp(op->cmd, "exit") == 0) {
-      free(op);
+    if (strcmp(cmd->options[0], "exit") == 0) {
+      free(tokens);
       free(cmd);
       break;
     }
 
-    add_to_history(h, op);
+    add_to_history(h, cmd);
 
     // Return child pid to parent and 0 to child
     pid = fork();
@@ -45,26 +45,24 @@ int main() {
       perror("fork()");
     
     if (pid > 0) {
-      wait(pid);
+      waitpid(pid, &status, 0);
     } else {
 
-      if (strcmp(op->cmd, "history") == 0) {
+      if (strcmp(cmd->options[0], "history") == 0) {
         print_history(h);
-      } else if (strstr(op->cmd, "/") != NULL) {
-        status = execv(op->cmd, op->options);
+      } else if (strstr(cmd->options[0], "/") != NULL) {
+        status = execv(cmd->options[0], cmd->options);
       } else {
-        status = execvp(op->cmd, op->options);
+        status = execvp(cmd->options[0], cmd->options);
       }
 
       if (status < 0) {
         fprintf(stderr, "Error executing command.\n");
       }
-      free(op);
-      free(cmd);
       break;
     }
-
+    free(tokens);
+    free(cmd);
   }
-
-  return 0;
+  free(h);
 }
