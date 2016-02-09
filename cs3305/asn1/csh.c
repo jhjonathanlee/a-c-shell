@@ -82,20 +82,16 @@ void main(void) {
           // only parent keeps forking
           if (cpid == 0)
             break;
-        //  else
-        //    waitpid(cpid, &status, 0);
         }
 
         if (cpid > 0) {
-          // tail of pipe is the child forked from the original shell
-          //printf("tail of pipe\n");
-          //waitpid(cpid, &status, 0);
           close(fd_arr[p_num][1]);
           if (dup2(fd_arr[p_num][0], STDIN_FILENO) < 0) {
             perror("can't dup");
             exit(1);
           }
-          status = execvp(cmd->options[2], &(cmd->options[2]));
+          int index = arr[cmd->pipes-1] + 1;
+          status = execvp(cmd->options[index], &(cmd->options[index]));
           if (status < 0) {
             perror("child: exec problem");
             exit(1);
@@ -108,7 +104,7 @@ void main(void) {
                 perror("can't dup");
                 exit(1);
               }
-              cmd->options[1] = (char *) NULL;
+              cmd->options[arr[0]] = (char *) NULL;
               status = execvp(cmd->options[0], cmd->options);
               if (status < 0) {
                 perror("child: exec problem");
