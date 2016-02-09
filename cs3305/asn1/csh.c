@@ -46,6 +46,7 @@ void main(void) {
     
     if (pid > 0) {
       waitpid(pid, &status, 0);
+      printf("child terminated\n");
     } else {
       if (cmd->pipes > 0) {
 
@@ -71,7 +72,7 @@ void main(void) {
         int p_num = 0;
         pid_t cpid;
 
-        for (int i = 0; i < cmd->pipes-1; i++) {
+        for (int i = 0; i < cmd->pipes; i++) {
           p_num = i;
           cpid = fork();
 
@@ -81,20 +82,44 @@ void main(void) {
           // only parent keeps forking
           if (cpid == 0)
             break;
+        //  else
+        //    waitpid(cpid, &status, 0);
         }
 
-        if (p_num == 0) {
-          // head of pipe, write only
-          printf("head of pipe\n");
-        }
-        else if (p_num == cmd->pipes-1) {
-          // tail of pipe, read only
-          printf("tail of pipe\n");
+        if (cpid > 0) {
+          // tail of pipe is the child forked from the original shell
+          //printf("tail of pipe\n");
+          //waitpid(cpid, &status, 0);
+          close(fd_arr[p_num][1]);
+          if (dup2(fd_arr[p_num][0], STDIN_FILENO) < 0) {
+            perror("can't dup");
+            exit(1);
+          }
+          status = execvp(cmd->options[2], &(cmd->options[2]));
+          if (status < 0) {
+            perror("child: exec problem");
+            exit(1);
+          }
         } else {
-          // body of pipe read and write
-          printf("body of pipe\n");
+            if (p_num == 0) {
+              // head of pipe, write only
+              close(fd_arr[p_num][0]);
+              if (dup2(fd_arr[p_num][1], STDOUT_FILENO) < 0) {
+                perror("can't dup");
+                exit(1);
+              }
+              cmd->options[1] = (char *) NULL;
+              status = execvp(cmd->options[0], cmd->options);
+              if (status < 0) {
+                perror("child: exec problem");
+                exit(1);
+              }
+            } else {
+              // body of pipe read and write
+              //printf("body of pipe\n");
+            }
         }
-
+        break;
       } else {
 
       if (strcmp(cmd->options[0], "history") == 0) {
