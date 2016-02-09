@@ -49,15 +49,52 @@ void main(void) {
     } else {
       if (cmd->pipes > 0) {
 
-        int fd[pipes][2];
-        int arr[cmd->pipes] = { 0 };
+        int fd_arr[cmd->pipes][2];
+        int arr[cmd->pipes];
+
+        int i = 0, k = 0;
+        char *tok;
+
+        while ((tok = cmd->options[i]) != NULL) {
+          if (tok[0] == '|')
+            arr[k++] = i;
+          i++;
+        }
+
         for (int i = 0; i < cmd->pipes; i++) {
-          for (int j = 0; j < cmd->num ; j++) {
-            if (cmd->options[j][0] == '|') {
-              arr[i] = j;
-            }
+          if (pipe(fd_arr[i]) < 0) {
+            perror("pipe()");
+            break;
           }
         }
+
+        int p_num = 0;
+        pid_t cpid;
+
+        for (int i = 0; i < cmd->pipes-1; i++) {
+          p_num = i;
+          cpid = fork();
+
+          if (cpid < 0)
+            perror("fork()");
+          
+          // only parent keeps forking
+          if (cpid == 0)
+            break;
+        }
+
+        if (p_num == 0) {
+          // head of pipe, write only
+          printf("head of pipe\n");
+        }
+        else if (p_num == cmd->pipes-1) {
+          // tail of pipe, read only
+          printf("tail of pipe\n");
+        } else {
+          // body of pipe read and write
+          printf("body of pipe\n");
+        }
+
       } else {
 
       if (strcmp(cmd->options[0], "history") == 0) {
