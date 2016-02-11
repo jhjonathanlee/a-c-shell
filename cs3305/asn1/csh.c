@@ -26,8 +26,12 @@ void main(void) {
     char *tokens;
     printf("%s>", uname);
     fgets(buf, 256, stdin);
+
+    if (buf[0] == '\n')
+      continue;
+
     asprintf(&tokens, "%s", buf);
-    
+
     csh_cmd *cmd = get_options(tokens);
 
     if (strcmp(cmd->options[0], "exit") == 0) {
@@ -46,7 +50,6 @@ void main(void) {
     
     if (pid > 0) {
       waitpid(pid, &status, 0);
-      printf("child terminated\n");
     } else {
       if (cmd->pipes > 0) {
 
@@ -78,14 +81,19 @@ void main(void) {
 
           if (cpid < 0)
             perror("fork()");
-          
+
           // only parent keeps forking
           if (cpid == 0)
             break;
         }
 
         if (cpid > 0) {
+          for (int x = 0; x < cmd->pipes-1; x++) {
+            close(fd_arr[x][0]);
+            close(fd_arr[x][1]);
+          }
           close(fd_arr[p_num][1]);
+          
           if (dup2(fd_arr[p_num][0], STDIN_FILENO) < 0) {
             perror("can't dup");
             exit(1);
@@ -96,24 +104,59 @@ void main(void) {
             perror("child: exec problem");
             exit(1);
           }
+          
         } else {
-            if (p_num == 0) {
-              // head of pipe, write only
-              close(fd_arr[p_num][0]);
-              if (dup2(fd_arr[p_num][1], STDOUT_FILENO) < 0) {
-                perror("can't dup");
-                exit(1);
-              }
-              cmd->options[arr[0]] = (char *) NULL;
-              status = execvp(cmd->options[0], cmd->options);
-              if (status < 0) {
-                perror("child: exec problem");
-                exit(1);
-              }
-            } else {
-              // body of pipe read and write
-              //printf("body of pipe\n");
+          if (p_num == 0) {
+            // head of pipe, write only
+            for (int x = 1; x < cmd->pipes; x++) {
+              close(fd_arr[x][0]);
+              close(fd_arr[x][1]);
             }
+            close(fd_arr[0][0]);
+            if (dup2(fd_arr[0][1], STDOUT_FILENO) < 0) {
+              perror("can't dup");
+              exit(1);
+            }
+            cmd->options[arr[0]] = (char *) NULL;
+            status = execvp(cmd->options[0], cmd->options);
+            if (status < 0) {
+              perror("child: exec problem");
+              exit(1);
+            }
+          } else {
+            for (int x = p_num+1; x < cmd->pipes; x++) {
+              close(fd_arr[x][0]);
+              close(fd_arr[x][1]);
+            }
+            // read from previous
+            close(fd_arr[0][1]);
+            if (dup2(fd_arr[0][0], STDIN_FILENO) < 0) {
+              perror("can't dup1");
+              exit(1);
+            }
+
+            // write to current
+            close(fd_arr[p_num][0]);
+            
+            if (dup2(fd_arr[p_num][1], STDOUT_FILENO) < 0) {
+              perror("can't dup2");
+              exit(1);
+            }
+            
+            int index = arr[p_num - 1] + 1;
+            cmd->options[arr[p_num]] = (char *) NULL;
+            status = execvp(cmd->options[index], &(cmd->options[index]));
+            if (status < 0) {
+              perror("child : exec problem");
+              exit(1);
+            }
+          }
+        }
+        for (int x = 1; x <= cmd->pipes; x++) {
+          if (p_num != x-1) {
+            close(fd_arr[x-1][0]);
+            close(fd_arr[x-1][1]);
+          }
         }
         break;
       } else {
