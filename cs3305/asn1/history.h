@@ -1,7 +1,7 @@
 #ifndef history_h
 #define history_h
 
-#define HSIZE 4
+#define HSIZE 10
 
 #include "option_parser.h"
 

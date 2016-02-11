@@ -11,13 +11,14 @@ void add_to_history(history *h, csh_cmd *new_item) {
     asprintf(&tmp2, "%s", tmp);
     free(tmp);
     tmp = NULL;
-    asprintf(&tmp, "%s%s", tmp2, new_item->options[i]);
+    asprintf(&tmp, "%s %s", tmp2, new_item->options[i]);
     free(tmp2);
     tmp2 = NULL;
   }
   
   hist_node *node = malloc(sizeof(node));
-  
+  node->next = NULL;
+
   if (h->size == HSIZE) {
     hist_node *tmp_node = h->head;
     h->head = h->head->next;
@@ -32,7 +33,6 @@ void add_to_history(history *h, csh_cmd *new_item) {
   if (h->size == 1)
     h->head = node;
 
-  printf("added to history %s\n", tmp);
   node->text = tmp;
 }
 
@@ -40,12 +40,6 @@ void print_history(history *h) {
   printf("%d\n", h->size);
   hist_node *node;
   node = h->head;
-/*  
-  if (node == NULL) {
-    printf("");
-    return;
-  }
-*/
   while (node != NULL) {
     printf("%s\n", node->text);
     node = node->next;
