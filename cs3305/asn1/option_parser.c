@@ -16,6 +16,8 @@ csh_cmd *make_tokenlist(char *buf) {
   int i, n;
 
   cmd->pipes = 0;
+  cmd->in = -1;
+  cmd->out = -1;
   i = 0;
 
   line = buf;
@@ -25,8 +27,15 @@ csh_cmd *make_tokenlist(char *buf) {
     i++;
     line = NULL;
     cmd->options[i] = strtok(line, " \n");
-    if (cmd->options[i] != NULL && cmd->options[i][0] == '|')
-      cmd->pipes++;
+    if (cmd->options[i] != NULL) {
+      if (cmd->options[i][0] == '|')
+        cmd->pipes++;
+      else if (cmd->options[i][0] == '<')
+        cmd->in = i;
+      else if (cmd->options[i][0] == '>')
+        cmd->out = i;
+    }
+    
   } while (cmd->options[i] != NULL);
 
   cmd->num = i;

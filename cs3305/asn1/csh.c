@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "option_parser.h"
 #include "history.h"
 
@@ -15,7 +17,7 @@ void main(void) {
   }
 
   history *h = malloc(sizeof(h));
-  h->size = 0;
+  create_history(h);
 
   pid_t pid;
   int status = 0;
@@ -159,15 +161,39 @@ void main(void) {
           }
         }
         break;
-      } else {
-
-      if (strcmp(cmd->options[0], "history") == 0) {
-        print_history(h);
-      } else if (strstr(cmd->options[0], "/") != NULL) {
-        status = execv(cmd->options[0], cmd->options);
-      } else {
-        status = execvp(cmd->options[0], cmd->options);
       }
+      else {
+        int fd = 0;
+        if (cmd->in != -1) {
+          // redirect stdin
+          if ((fd = open(cmd->options[cmd->in+1], O_RDWR|O_APPEND)) < 0) {
+            perror("Could not open specified file");
+            exit(1);
+          }
+          if (dup2(fd, STDIN_FILENO) < 0) {
+            perror("Could not dup");
+            exit(1);
+          }
+          cmd->options[cmd->in] = (char *) NULL;
+        }
+        if (cmd->out != -1) {
+          if ((fd = open(cmd->options[cmd->out+1], O_RDWR|O_APPEND)) < 0) {
+            perror("Could not open specified file");
+            exit(1);
+          }
+          if (dup2(fd, STDOUT_FILENO) < 0) {
+              perror("Could not dup");
+              exit(1);
+          }
+          cmd->options[cmd->out] = (char *) NULL;
+        }
+        if (strcmp(cmd->options[0], "history") == 0) {
+          print_history(h);
+        } else if (strstr(cmd->options[0], "/") != NULL) {
+          status = execv(cmd->options[0], cmd->options);
+        } else {
+          status = execvp(cmd->options[0], cmd->options);
+        }
       }
       if (status < 0) {
         fprintf(stderr, "Error executing command.\n");
@@ -177,5 +203,6 @@ void main(void) {
     free(tokens);
     free(cmd);
   }
+  free_hist_node2(h->head);
   free(h);
 }
